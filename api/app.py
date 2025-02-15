@@ -24,7 +24,6 @@ def get_monitoring_results(server):
     conn.close()
     return [{"timestamp": row[0], "response_time": row[1]} for row in data]
 
-# Function to spawn a new monitoring container
 def start_monitoring(server):
     container_name = f"ping_monitor_{server.replace('.', '_')}"
     
@@ -51,7 +50,7 @@ def start_monitoring(server):
 
     if not image_check.stdout.strip():
         print("Building the `ping_monitor` image first...")
-        subprocess.run(["docker", "compose", "build", "ping_monitor"], check=True)
+        subprocess.run(["docker", "build", "-t", "ping_monitor", "./ping_monitor"], check=True)
 
     # Step 3: Run the new monitoring container
     subprocess.run([
@@ -65,7 +64,6 @@ def start_monitoring(server):
     ], check=True)
 
     print(f"Started monitoring container {container_name} for {server}")
-
 
 @app.route("/monitor", methods=["POST"])
 def monitor():
