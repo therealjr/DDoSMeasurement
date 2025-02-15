@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  ping_monitor:
+    build: .
+    container_name: ping_monitor
+    depends_on:
+      - db
+    environment:
+      - DB_PATH=/data/ping_stats.db
+    volumes:
+      - ping_data:/data
+    command: ["python", "driver.py"]
+
+  db:
+    image: alpine
+    container_name: ping_db
+    command: sh -c "apk add --no-cache sqlite && mkdir -p /data && sqlite3 /data/ping_stats.db 'CREATE TABLE IF NOT EXISTS ping_data (id INTEGER PRIMARY KEY AUTOINCREMENT, server TEXT, timestamp REAL, response_time REAL);'"
+    volumes:
+      - ping_data:/data
+    restart: always
+
+  monitor_api:
+    build: ./api
+    container_name: monitor_api
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DB_PATH=/data/ping_stats.db
+    volumes:
+      - ping_data:/data
+    restart: always
+
+volumes:
+  ping_data:
