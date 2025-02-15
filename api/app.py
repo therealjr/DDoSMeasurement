@@ -28,16 +28,40 @@ def get_monitoring_results(server):
 def start_monitoring(server):
     container_name = f"ping_monitor_{server.replace('.', '_')}"
     
-    # Run the Docker command on the host via the mounted socket
+    # Step 1: Check if the container already exists
+    result = subprocess.run(
+        ["docker", "ps", "-a", "--format", "{{.Names}}"],
+        capture_output=True,
+        text=True
+    )
+    
+    existing_containers = result.stdout.split("\n")
+    
+    if container_name in existing_containers:
+        print(f"Container {container_name} already exists. Starting it.")
+        subprocess.run(["docker", "start", container_name], check=True)
+        return
+
+    # Step 2: Ensure `ping_monitor` image exists
+    image_check = subprocess.run(
+        ["docker", "images", "-q", "ping_monitor"],
+        capture_output=True,
+        text=True
+    )
+
+    if not image_check.stdout.strip():
+        print("Building the `ping_monitor` image first...")
+        subprocess.run(["docker", "compose", "build", "ping_monitor"], check=True)
+
+    # Step 3: Run the new monitoring container
     subprocess.run([
         "docker", "run", "-d",
         "--name", container_name,
-        "--network", "host",  # 🛠 Use "host" networking for full access
+        "--network", "host",
         "-e", f"DB_PATH={DB_PATH}",
         "-v", "ping_data:/data",
-        "ping_monitor",  # Use the correct image name
+        "ping_monitor",
         "--hostname", server
-    ], check=True)
 
 @app.route("/monitor", methods=["POST"])
 def monitor():
