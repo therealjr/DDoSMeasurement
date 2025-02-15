@@ -41,8 +41,6 @@ services:
     volumes:
       - ping_data:/db  # ✅ Separate mount for database
       - ping_monitor:/app  # ✅ Separate mount for monitoring scripts
-    command: ["python", "/app/driver.py"]
-    restart: always
 
 volumes:
   ping_data:  # ✅ Persistent database volume
