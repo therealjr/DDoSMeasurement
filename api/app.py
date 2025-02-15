@@ -5,6 +5,7 @@ import os
 
 app = Flask(__name__)
 DB_PATH = "/data/ping_stats.db"
+PING_MONITOR_PATH = os.path.abspath("../ping_monitor")  # Get absolute path on host
 
 # Function to check if a website is already being monitored
 def is_website_monitored(server):
@@ -51,7 +52,7 @@ def start_monitoring(server):
 
     if not image_check.stdout.strip():
         print(f"Building the `{image_name}` image first...")
-        subprocess.run(["docker", "build", "-t", image_name, "/ping_monitor"], check=True)
+        subprocess.run(["docker", "build", "-t", image_name, PING_MONITOR_PATH], check=True)
 
     # Step 3: Run the new monitoring container with its unique image
     subprocess.run([
