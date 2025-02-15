@@ -27,20 +27,8 @@ services:
       - DB_PATH=/data/ping_stats.db
     volumes:
       - ping_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock  # 🛠 MOUNT DOCKER SOCKET (HOST <-> CONTAINER)
+      - /var/run/docker.sock:/var/run/docker.sock  # 🛠 Allow API to control Docker
     restart: always
-
-  ping_monitor:
-    build: ./ping_monitor
-    container_name: ping_monitor
-    depends_on:
-      - db
-    environment:
-      - DB_PATH=/data/ping_stats.db
-    volumes:
-      - ping_data:/data
-    command: ["python", "driver.py"]
-    restart: always  # Ensures continuous monitoring
 
 volumes:
   ping_data:
