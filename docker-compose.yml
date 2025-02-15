@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   ping_monitor:
-    build: .
+    build: ./ping_monitor
     container_name: ping_monitor
     depends_on:
       - db
