@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY app.py /app/app.py
 
-RUN pip install flask
+RUN apt-get update && apt-get install -y docker.io && pip install flask
 
 ENTRYPOINT ["python", "app.py"]
