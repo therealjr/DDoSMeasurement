@@ -27,7 +27,7 @@ services:
       - DB_PATH=/data/ping_stats.db
     volumes:
       - ping_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock  # 🛠 Grant API access to Docker
+      - /var/run/docker.sock:/var/run/docker.sock  # 🛠 MOUNT DOCKER SOCKET (HOST <-> CONTAINER)
     restart: always
 
   ping_monitor:

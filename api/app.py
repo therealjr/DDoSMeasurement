@@ -27,15 +27,17 @@ def get_monitoring_results(server):
 # Function to spawn a new monitoring container
 def start_monitoring(server):
     container_name = f"ping_monitor_{server.replace('.', '_')}"
+    
+    # Run the Docker command on the host via the mounted socket
     subprocess.run([
         "docker", "run", "-d",
         "--name", container_name,
-        "--network", "ping_monitoring_default",  # Match Docker network
+        "--network", "host",  # 🛠 Use "host" networking for full access
         "-e", f"DB_PATH={DB_PATH}",
         "-v", "ping_data:/data",
-        "ping-monitor",  # Image name
+        "ping_monitor",  # Use the correct image name
         "--hostname", server
-    ])
+    ], check=True)
 
 @app.route("/monitor", methods=["POST"])
 def monitor():
