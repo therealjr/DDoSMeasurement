@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY app.py /app/app.py
 
-RUN pip install flask sqlite3
+RUN pip install flask
 
 ENTRYPOINT ["python", "app.py"]
