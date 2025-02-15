@@ -16,19 +16,21 @@ services:
       - ping_data:/data
     restart: always
 
-  monitor_api:
-    build: ./api
-    container_name: monitor_api
-    ports:
-      - "5000:5000"
-    depends_on:
-      - db
-    environment:
-      - DB_PATH=/data/ping_stats.db
-    volumes:
-      - ping_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock  # 🛠 Allow API to control Docker
-    restart: always
+monitor_api:
+  build: ./api
+  container_name: monitor_api
+  ports:
+    - "5000:5000"
+  depends_on:
+    - db
+  environment:
+    - DB_PATH=/data/ping_stats.db
+  volumes:
+    - ping_data:/data
+    - /var/run/docker.sock:/var/run/docker.sock  # 🛠 Allow API to control Docker
+    - ./ping_monitor:/ping_monitor  # 🛠 Mount the directory so it can be built dynamically
+  restart: always
+
 
 volumes:
   ping_data:

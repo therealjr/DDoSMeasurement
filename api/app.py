@@ -26,6 +26,7 @@ def get_monitoring_results(server):
 
 def start_monitoring(server):
     container_name = f"ping_monitor_{server.replace('.', '_')}"
+    image_name = f"ping_monitor_{server.replace('.', '_')}"
     
     # Step 1: Check if the container already exists
     result = subprocess.run(
@@ -41,25 +42,25 @@ def start_monitoring(server):
         subprocess.run(["docker", "start", container_name], check=True)
         return
 
-    # Step 2: Ensure `ping_monitor` image exists
+    # Step 2: Ensure the unique `ping_monitor_<server>` image exists
     image_check = subprocess.run(
-        ["docker", "images", "-q", "ping_monitor"],
+        ["docker", "images", "-q", image_name],
         capture_output=True,
         text=True
     )
 
     if not image_check.stdout.strip():
-        print("Building the `ping_monitor` image first...")
-        subprocess.run(["docker", "build", "-t", "ping_monitor", "./ping_monitor"], check=True)
+        print(f"Building the `{image_name}` image first...")
+        subprocess.run(["docker", "build", "-t", image_name, "/ping_monitor"], check=True)
 
-    # Step 3: Run the new monitoring container
+    # Step 3: Run the new monitoring container with its unique image
     subprocess.run([
         "docker", "run", "-d",
         "--name", container_name,
         "--network", "host",
         "-e", f"DB_PATH={DB_PATH}",
         "-v", "ping_data:/data",
-        "ping_monitor",
+        image_name,
         "--hostname", server
     ], check=True)
 
