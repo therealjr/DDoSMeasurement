@@ -4,7 +4,7 @@ import subprocess
 import os
 
 app = Flask(__name__)
-DB_PATH = "/data/ping_stats.db"
+DB_PATH = "/db/ping_stats.db"
 PING_MONITOR_PATH = os.path.abspath("../ping_monitor")  # Get absolute path on host
 HOST_DB_PATH = os.path.abspath("../ping_data")  # Ensure absolute path
 
@@ -66,7 +66,7 @@ def start_monitoring(server):
         image_name,
         "--hostname", server
     ], check=True)
-    
+
     print(f"Started monitoring container {container_name} for {server}")
 
 @app.route("/monitor", methods=["POST"])
