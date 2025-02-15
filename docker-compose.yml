@@ -13,7 +13,7 @@ services:
         response_time REAL
       );' && tail -f /dev/null"
     volumes:
-      - ping_data:/data
+      - ping_data:/data  # ✅ Shared database volume
     restart: always
 
   monitor_api:
@@ -24,13 +24,25 @@ services:
     depends_on:
       - db
     environment:
-      - DB_PATH=/data/ping_stats.db
+      - DB_PATH=/db/ping_stats.db
     volumes:
-      - ping_data:/data
-      - /var/run/docker.sock:/var/run/docker.sock  # 🛠 Allow API to control Docker
-      - ./ping_monitor:/ping_monitor  # 🛠 Mount the directory so it can be built dynamically
+      - ping_data:/db  # ✅ Mount database separately
+      - /var/run/docker.sock:/var/run/docker.sock  # Allow API to manage containers
     restart: always
 
+  ping_monitor:
+    build: ./ping_monitor
+    container_name: ping_monitor
+    depends_on:
+      - db
+    environment:
+      - DB_PATH=/db/ping_stats.db
+    volumes:
+      - ping_data:/db  # ✅ Separate mount for database
+      - ping_monitor:/app  # ✅ Separate mount for monitoring scripts
+    command: ["python", "/app/driver.py"]
+    restart: always
 
 volumes:
-  ping_data:
+  ping_data:  # ✅ Persistent database volume
+  ping_monitor:  # ✅ Persistent volume for monitoring scripts

@@ -6,6 +6,7 @@ import os
 app = Flask(__name__)
 DB_PATH = "/data/ping_stats.db"
 PING_MONITOR_PATH = os.path.abspath("../ping_monitor")  # Get absolute path on host
+HOST_DB_PATH = os.path.abspath("../ping_data")  # Ensure absolute path
 
 # Function to check if a website is already being monitored
 def is_website_monitored(server):
@@ -59,12 +60,13 @@ def start_monitoring(server):
         "docker", "run", "-d",
         "--name", container_name,
         "--network", "host",
-        "-e", f"DB_PATH={DB_PATH}",
-        "-v", "ping_data:/data",
+        "-e", f"DB_PATH=/db/ping_stats.db",  # Change path to avoid conflict
+        "-v", f"{PING_MONITOR_PATH}:/app",  # Mount the code separately
+        "-v", f"{HOST_DB_PATH}:/db",  # Mount database separately
         image_name,
         "--hostname", server
     ], check=True)
-
+    
     print(f"Started monitoring container {container_name} for {server}")
 
 @app.route("/monitor", methods=["POST"])
