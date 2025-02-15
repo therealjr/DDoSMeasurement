@@ -62,7 +62,10 @@ def start_monitoring(server):
         "-v", "ping_data:/data",
         "ping_monitor",
         "--hostname", server
+    ], check=True)
 
+    print(f"Started monitoring container {container_name} for {server}")
+    
 @app.route("/monitor", methods=["POST"])
 def monitor():
     data = request.get_json()
