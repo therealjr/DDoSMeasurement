@@ -15,11 +15,18 @@ services:
   db:
     image: alpine
     container_name: ping_db
-    command: sh -c "apk add --no-cache sqlite && mkdir -p /data && sqlite3 /data/ping_stats.db 'CREATE TABLE IF NOT EXISTS ping_data (id INTEGER PRIMARY KEY AUTOINCREMENT, server TEXT, timestamp REAL, response_time REAL);'"
+    command: >
+      sh -c "apk add --no-cache sqlite && mkdir -p /data && touch /data/ping_stats.db &&
+      sqlite3 /data/ping_stats.db 'CREATE TABLE IF NOT EXISTS ping_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        server TEXT, 
+        timestamp REAL, 
+        response_time REAL
+      );' && tail -f /dev/null"
     volumes:
       - ping_data:/data
     restart: always
-
+    
   monitor_api:
     build: ./api
     container_name: monitor_api
