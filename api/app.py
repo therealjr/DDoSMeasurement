@@ -4,18 +4,26 @@ import subprocess
 import os
 
 app = Flask(__name__)
-DB_PATH = "/db/ping_stats.db"
-PING_MONITOR_PATH = os.path.abspath("../ping_monitor")  # Get absolute path on host
-HOST_DB_PATH = os.path.abspath("../ping_data")  # Ensure absolute path
+DB_PATH = "/db/ping_stats.db"  # ✅ Use correct DB path inside the container
+PING_MONITOR_PATH = "/ping_monitor"  # ✅ Must match mounted path in `docker-compose.yml`
+HOST_DB_PATH = "/db"  # ✅ Ensure correct database path
 
 # Function to check if a website is already being monitored
 def is_website_monitored(server):
+    # Check if the server is in the database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM ping_data WHERE server = ?", (server,))
     result = cursor.fetchone()[0]
     conn.close()
-    return result > 0  # Returns True if monitoring is active
+
+    # Check if the container is running
+    container_name = f"ping_monitor_{server.replace('.', '_')}"
+    running_containers = subprocess.run(
+        ["docker", "ps", "--format", "{{.Names}}"], capture_output=True, text=True
+    ).stdout.split("\n")
+
+    return result > 0 and container_name in running_containers  # ✅ Ensure both DB and container are active
 
 # Function to retrieve monitoring results
 def get_monitoring_results(server):
@@ -28,42 +36,25 @@ def get_monitoring_results(server):
 
 def start_monitoring(server):
     container_name = f"ping_monitor_{server.replace('.', '_')}"
-    image_name = f"ping_monitor_{server.replace('.', '_')}"
     
     # Step 1: Check if the container already exists
-    result = subprocess.run(
-        ["docker", "ps", "-a", "--format", "{{.Names}}"],
-        capture_output=True,
-        text=True
-    )
-    
-    existing_containers = result.stdout.split("\n")
+    existing_containers = subprocess.run(
+        ["docker", "ps", "-a", "--format", "{{.Names}}"], capture_output=True, text=True
+    ).stdout.split("\n")
     
     if container_name in existing_containers:
-        print(f"Container {container_name} already exists. Starting it.")
+        print(f"Container {container_name} already exists. Restarting it.")
         subprocess.run(["docker", "start", container_name], check=True)
         return
 
-    # Step 2: Ensure the unique `ping_monitor_<server>` image exists
-    image_check = subprocess.run(
-        ["docker", "images", "-q", image_name],
-        capture_output=True,
-        text=True
-    )
-
-    if not image_check.stdout.strip():
-        print(f"Building the `{image_name}` image first...")
-        subprocess.run(["docker", "build", "-t", image_name, PING_MONITOR_PATH], check=True)
-
-    # Step 3: Run the new monitoring container with its unique image
+    # Step 2: Run the monitoring container
     subprocess.run([
         "docker", "run", "-d",
         "--name", container_name,
         "--network", "host",
-        "-e", f"DB_PATH=/db/ping_stats.db",  # Change path to avoid conflict
-        "-v", f"{PING_MONITOR_PATH}:/app",  # Mount the code separately
-        "-v", f"{HOST_DB_PATH}:/db",  # Mount database separately
-        image_name,
+        "-e", f"DB_PATH=/db/ping_stats.db",  # ✅ Use consistent DB path
+        "-v", "ping_data:/db",  # ✅ Shared database volume
+        "ddosmeasurement-ping_monitor",  # ✅ Use the pre-built image from `docker-compose.yml`
         "--hostname", server
     ], check=True)
 

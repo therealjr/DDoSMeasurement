@@ -28,6 +28,7 @@ services:
     volumes:
       - ping_data:/db  # ✅ Mount database separately
       - /var/run/docker.sock:/var/run/docker.sock  # Allow API to manage containers
+      - ./ping_monitor:/ping_monitor  # ✅ Mount ping_monitor into monitor_api
     restart: always
 
   ping_monitor:
