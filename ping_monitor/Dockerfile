@@ -7,6 +7,10 @@ WORKDIR /app
 # Copy the script into the container
 COPY driver.py /app/driver.py
 
+# Install required dependencies, including 'ping'
+RUN apt-get update && apt-get install -y iputils-ping sqlite3 && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install necessary dependencies
 RUN pip install numpy
 
