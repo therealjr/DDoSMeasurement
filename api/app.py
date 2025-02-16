@@ -47,7 +47,7 @@ def start_monitoring(server):
         subprocess.run(["docker", "start", container_name], check=True)
         return
     else:
-        subprocess.run(["docker", "build", "-t", container_name], check=True)
+        subprocess.run(["docker", "build", "-t", container_name, PING_MONITOR_PATH], check=True)
 
 
     # Step 2: Run the monitoring container
@@ -55,9 +55,9 @@ def start_monitoring(server):
         "docker", "run", "-d",
         "--name", container_name,
         "--network", "host",
-        "-e", f"DB_PATH=/db/ping_stats.db",  # ✅ Use consistent DB path
-        "-v", "ping_data:/db",  # ✅ Shared database volume
-        "ddosmeasurement-ping_monitor",  # ✅ Use the pre-built image from `docker-compose.yml`
+        "-e", f"DB_PATH=/db/ping_stats.db",
+        "-v", "ping_data:/db",
+        container_name,  # ✅ Use the unique image name
         "--hostname", server
     ], check=True)
 

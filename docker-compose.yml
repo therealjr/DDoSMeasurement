@@ -27,21 +27,9 @@ services:
       - DB_PATH=/db/ping_stats.db
     volumes:
       - ping_data:/db  # ✅ Mount database separately
-      - /var/run/docker.sock:/var/run/docker.sock  # Allow API to manage containers
+      - /var/run/docker.sock:/var/run/docker.sock  # ✅ Allow API to manage containers
       - ./ping_monitor:/ping_monitor  # ✅ Mount ping_monitor into monitor_api
     restart: always
 
-  ping_monitor:
-    build: ./ping_monitor
-    container_name: ping_monitor
-    depends_on:
-      - db
-    environment:
-      - DB_PATH=/db/ping_stats.db
-    volumes:
-      - ping_data:/db  # ✅ Separate mount for database
-      - ping_monitor:/app  # ✅ Separate mount for monitoring scripts
-
 volumes:
   ping_data:  # ✅ Persistent database volume
-  ping_monitor:  # ✅ Persistent volume for monitoring scripts
