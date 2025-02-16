@@ -45,7 +45,7 @@ def main():
     parser.add_argument('--hostname', required=True, help="Target server")
     args = parser.parse_args()
 
-    db_path = "/data/ping_stats.db"
+    db_path = "/db/ping_stats.db"
     sliding_window_size = 100
     response_times = []
     min_delay = 0.5
