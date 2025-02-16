@@ -8,11 +8,11 @@ WORKDIR /app
 COPY driver.py /app/driver.py
 
 # Install required dependencies, including 'ping'
-RUN apt-get update && apt-get install -y iputils-ping sqlite3 && \
+RUN apt-get update && apt-get install -y iputils-ping sqlite3 libsqlite3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Install necessary dependencies
-RUN pip install numpy
+RUN pip install numpy pysqlite3 
 
 # Allow the command to be overridden at runtime
 ENTRYPOINT ["python", "driver.py"]
