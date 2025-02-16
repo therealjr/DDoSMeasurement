@@ -36,6 +36,7 @@ def is_website_monitored(server):
         cursor.execute(query)
         logging.info(f"Executing: {query}")
         db_result = cursor.fetchone()[0]
+        logging.info(f"db result: {db_result}")
         conn.close()
 
         # ✅ Check if the container is running
