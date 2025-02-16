@@ -116,11 +116,13 @@ def start_monitoring(server):
             "docker", "run", "-d",
             "--name", container_name,
             "--network", "host",
-            "-e", f"DB_PATH=/db/ping_stats.db",
-            "-v", f"{os.getcwd()}/db:/db",  # ✅ Ensures database file is shared across all containers
-            container_name,
+            "-e", "DB_PATH=/data/ping_stats.db",  # ✅ Match the shared database path
+            "-v", "ping_data:/data",  # ✅ Ensure same mount path
+            "-v", f"{PING_MONITOR_PATH}:/ping_monitor",  # ✅ Make sure monitoring scripts are accessible
+            container_name,  # ✅ The base image name
             "--hostname", server
         ], capture_output=True, text=True)
+
 
         if run_process.returncode != 0:
             logging.error(f"Failed to start monitoring container `{container_name}`: {run_process.stderr}")
