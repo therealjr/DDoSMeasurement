@@ -5,15 +5,15 @@ services:
     image: alpine
     container_name: ping_db
     command: >
-      sh -c "apk add --no-cache sqlite && mkdir -p /data && touch /data/ping_stats.db &&
-      sqlite3 /data/ping_stats.db 'CREATE TABLE IF NOT EXISTS ping_data (
+      sh -c "apk add --no-cache sqlite && mkdir -p /db && touch /db/ping_stats.db &&
+      sqlite3 /db/ping_stats.db 'CREATE TABLE IF NOT EXISTS ping_data (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
         server TEXT, 
         timestamp REAL, 
         response_time REAL
       );' && tail -f /dev/null"
     volumes:
-      - ping_data:/data  # ✅ Shared database volume
+      - ping_data:/db  # ✅ Now uses `/db` to match `monitor_api`
     restart: always
 
   monitor_api:
@@ -24,12 +24,12 @@ services:
     depends_on:
       - db
     environment:
-      - DB_PATH=/db/ping_stats.db
+      - DB_PATH=/db/ping_stats.db  # ✅ Matches the `db` container path
     volumes:
-      - ping_data:/db  # ✅ Mount database separately
-      - /var/run/docker.sock:/var/run/docker.sock  # ✅ Allow API to manage containers
-      - ./ping_monitor:/ping_monitor  # ✅ Mount ping_monitor into monitor_api
+      - ping_data:/db  # ✅ Uses the exact same volume and path as `db`
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./ping_monitor:/ping_monitor
     restart: always
 
 volumes:
-  ping_data:  # ✅ Persistent database volume
+  ping_data:  # ✅ Shared volume for `/db/ping_stats.db`

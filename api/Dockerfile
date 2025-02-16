@@ -13,7 +13,5 @@ RUN pip3 install flask
 # Copy the application
 COPY app.py /app/app.py
 
-ENV DB_PATH=/db/ping_stats.db 
-
 # Set the entrypoint
 ENTRYPOINT ["python3", "/app/app.py"]
