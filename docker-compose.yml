@@ -32,4 +32,4 @@ services:
     restart: always
 
 volumes:
-  ping_data:  # ✅ Shared database volume
+  ping_data: 

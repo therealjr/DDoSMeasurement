@@ -13,9 +13,9 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-DB_PATH = "/db/ping_stats.db"  # ✅ Use correct DB path inside the container
+DB_PATH = "/data/ping_stats.db"  # ✅ Use correct DB path inside the container
 PING_MONITOR_PATH = "/ping_monitor"  # ✅ Must match mounted path in `docker-compose.yml`
-HOST_DB_PATH = "/db"  # ✅ Ensure correct database path
+HOST_DB_PATH = "/data"  # ✅ Ensure correct database path
 
 # Function to check if a website is already being monitored
 def is_website_monitored(server):
