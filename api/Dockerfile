@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install required packages
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip sqlite3 && \
+    apt-get install -y python3 python3-pip sqlite3 docker.io && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
