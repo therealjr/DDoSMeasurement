@@ -5,8 +5,7 @@ sudo docker compose up -d
 
 sudo docker compose down -v
 sudo docker system prune -a --volumes -f
-sudo docker volume rm ping_data ddosmeasurement_ping_data || true 
-
+sudo docker stop ping_monitor_example_com && sudo docker rm ping_monitor_example_com && sudo docker rmi ping_monitor_example_com -f
 
 curl -X POST http://social.kelvincomputers.org:5000/monitor -H "Content-Type: application/json" -d '{"server": "example.com"}'
 curl "http://social.kelvincomputers.org:5000/results?server=example.com"

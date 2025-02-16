@@ -33,3 +33,4 @@ services:
 
 volumes:
   ping_data: 
+    external: true
