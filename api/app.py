@@ -22,26 +22,42 @@ def is_website_monitored(server):
     container_name = f"ping_monitor_{server.replace('.', '_')}"
 
     try:
-        logging.info(f"Checking if {server} is already monitored...")
+        logging.info(f"🔎 Checking if {server} is already monitored...")
 
-        # Check if the server exists in the database
+        # ✅ Ensure the database exists
+        if not os.path.exists(DB_PATH):
+            logging.error(f"❌ Database file not found at {DB_PATH}")
+            return False
+
+        # ✅ Check if the server exists in the database
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM ping_data WHERE server = ?", (server,))
-        result = cursor.fetchone()[0]
+        db_result = cursor.fetchone()[0]
         conn.close()
 
-        # Check if the container is running
+        # ✅ Check if the container is running
         running_containers = subprocess.run(
             ["docker", "ps", "--format", "{{.Names}}"], capture_output=True, text=True
-        ).stdout.split("\n")
+        ).stdout.strip().split("\n")
 
+        # ✅ Ensure proper comparison
+        running_containers = [c.strip() for c in running_containers if c.strip()]  # Remove empty strings
         is_running = container_name in running_containers
-        logging.info(f"Container {container_name} running: {is_running}, Found in DB: {result > 0}")
 
-        return result > 0 and is_running
+        logging.info(f"🔍 Container: {container_name} | Running: {is_running} | Found in DB: {db_result > 0}")
+
+        # ✅ Return True only if BOTH the database and container match
+        return db_result > 0 and is_running
+
+    except sqlite3.OperationalError as e:
+        logging.error(f"❌ Database error while checking {server}: {e}")
+        return False
+    except subprocess.SubprocessError as e:
+        logging.error(f"❌ Docker error while checking {server}: {e}")
+        return False
     except Exception as e:
-        logging.error(f"Error checking if {server} is monitored: {e}")
+        logging.error(f"❌ Unexpected error while checking {server}: {e}")
         return False
 
 # Function to retrieve monitoring results
