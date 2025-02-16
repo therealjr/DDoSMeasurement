@@ -1,7 +1,7 @@
 # DDoSMeasurement
 
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 
 sudo docker system prune -a --volumes -f
 
