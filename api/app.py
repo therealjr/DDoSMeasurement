@@ -46,6 +46,9 @@ def start_monitoring(server):
         print(f"Container {container_name} already exists. Restarting it.")
         subprocess.run(["docker", "start", container_name], check=True)
         return
+    else:
+        subprocess.run(["docker", "build", "-t", container_name], check=True)
+
 
     # Step 2: Run the monitoring container
     subprocess.run([
