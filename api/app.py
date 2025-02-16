@@ -32,7 +32,9 @@ def is_website_monitored(server):
         # ✅ Check if the server exists in the database
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
-        cursor.execute(f"SELECT COUNT(*) FROM ping_data WHERE server = '{server}'")
+        query = f"SELECT COUNT(*) FROM ping_data WHERE server = '{server}'"
+        cursor.execute(query)
+        logging.info(f"Executing: {query}")
         db_result = cursor.fetchone()[0]
         conn.close()
 
