@@ -116,11 +116,12 @@ def start_monitoring(server):
             "docker", "run", "-d",
             "--name", container_name,
             "--network", "host",
-            "-e", f"DB_PATH=/db/ping_stats.db",
-            "-v", "ping_data:/db",
-            container_name,
+            "-e", "DB_PATH=/db/ping_stats.db",  # ✅ Environment variable consistent with other services
+            "-v", "ping_data:/db",  # ✅ Uses the same volume as `monitor_api`
+            "ping_monitor_image",  # ✅ Use the actual image name, not the container name
             "--hostname", server
         ], capture_output=True, text=True)
+
 
         if run_process.returncode != 0:
             logging.error(f"Failed to start monitoring container `{container_name}`: {run_process.stderr}")
